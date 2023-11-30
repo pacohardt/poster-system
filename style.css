@@ -1,0 +1,103 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #D1D1D1;
+  height: 100%;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  padding: 20px;
+}
+
+a:link {
+  color: #3176f6;
+}
+
+a:visited {
+  color: #3176f6;
+}
+
+a:hover {
+  color: #255dbb;
+}
+
+.qs_title_bar {
+  color: #3176f6 !important;
+  font-family: "IBM Plex Mono", sans-serif !important;
+  font-style: italic;
+}
+
+.qs_label {
+  font-family: "IBM Plex Mono", sans-serif !important;
+  font-style: bold;
+}
+
+.qs_button {
+  background-color: #3176f6 !important;
+  color: #ffffff !important;
+  border: 3px solid #3176f6 !important;
+  font-family: "IBM Plex Mono", sans-serif !important;
+}
+
+.qs_button:hover {
+  background-color: #255dbb !important;
+  color: #ffffff !important;
+  border: 3px solid #255dbb !important;
+  cursor: pointer;
+}
+
+.qs_range {
+  appearance: auto !important;
+}
+
+.qs_content {
+  background-color: #eeeeee !important;
+  margin-top: 5px;
+  font-family: "IBM Plex Mono", sans-serif !important;
+}
+
+#info-panel {
+  background: #ffffff;
+  padding: 20px;
+}
+
+.qs_title_bar:hover {
+  background-color: #255dbb !important;
+  color: #ffffff !important;
+}
+
+#buttonContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#🆕, #🚮, #🔄, #➡️ {
+  background-color: transparent !important;
+  border: none !important;
+  font-size: 20px;
+}
+
+#🆕:hover, #🚮:hover, #🔄:hover, #➡️:hover {
+  background-color: #255dbb !important;
+}
+
+#buttonContainerTxt {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+}
+
+#random, #delete, #next{
+  border: 3px solid #eeeeee !important;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
