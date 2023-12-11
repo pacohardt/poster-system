@@ -50,37 +50,47 @@ function generateGrid() {
 /////////////////////////////////////////// UI /////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+function showSurveyAlert() {
+  const surveyURL = 'https://forms.gle/2ttXPgsNjhsc1aAN6';
+  const message = "Are you enjoying poster.system? Please consider answering the survey and sharing your poster!";
+  
+  if (confirm(message)) {
+    window.open(surveyURL, '_blank'); 
+  }
+}
+
 /////////////////////////////////////////// asset manage
 function gotFile(file) {
   if (file.type === "image") {
     loadImage(file.data, (img) => {
       const uploadedImageURL = img.canvas.toDataURL();
-      
+
       allImagesHTML += `<img class='img_ui' src='${uploadedImageURL}' style='width:15%; padding:2px;'></img>`;
       settAssets.setValue("Images", allImagesHTML);
 
       let displayImg = img.get();
       let rasterImg = img.get();
-      
+
       displayImg.filter(GRAY);
       rasterImg.filter(GRAY);
-      
-      highlightSelectedImage(currentImage);    
-      
+
+      highlightSelectedImage(currentImage);
+
       displayImages.push({
         image: displayImg,
         x: floor(random(columns) + 1) * cellWidth + currentMarginW,
         y: floor(random(rows) + 1) * cellHeight + currentMarginH,
         scale: 1,
+        uploaded: true,
       });
-      
-      
+
       currentImageWidth = rasterImg.width;
       currentImageHeight = rasterImg.height;
 
       rasterizedImages.push(rasterImg);
-      currentImage++;
     });
+    currentImage++;
+    imageCounter++;
   } else if (file.type === "text") {
     if (txtFiles.length < maxTextFiles) {
       const textLines = file.data.split("\n");
@@ -161,7 +171,7 @@ function exportPoster() {
   hour = date.getHours();
   minute = date.getMinutes();
   filename = `POSTER_${year}-${month}-${day}_${hour}-${minute}`;
-  
+
   saveCanvas(poster, filename, "png");
 
   svgCanvas.background(colorBg);
@@ -176,6 +186,7 @@ function exportPoster() {
   save(svgCanvas, filename, "svg");
   svgCanvas.noLoop();
   showShareSVG = true;
+  showSurveyAlert();
 }
 function exportVariables() {
   let variableData = [];
@@ -184,44 +195,44 @@ function exportVariables() {
     variableData.push(`${name} = ${value};`);
   }
 
-  addVariable('invertBgColor', invertBgColor);
-  addVariable('showGridEnabled', showGridEnabled);
-  addVariable('mW', mW);
-  addVariable('mH', mH);
-  addVariable('rows', rows);
-  addVariable('columns', columns);
-  addVariable('lockTextEnabled', lockTextEnabled);
-  addVariable('invertTextColor', invertTextColor);
-  addVariable('myText', myText);
-  addVariable('myTextSize', myTextSize);
-  addVariable('myTextLeading', myTextLeading);
-  addVariable('myTextKerning', myTextKerning);
-  addVariable('hideTxt', hideTxt);
-  addVariable('txtBreak', txtBreak);
-  addVariable('txtSize', txtSize);
-  addVariable('txtLead', txtLead);
-  addVariable('hideImages', hideImages);
-  addVariable('lockImagesEnabled', lockImagesEnabled);
-  addVariable('pImgScale', pImgScale);
-  addVariable('rImgLineEnabled', rImgLineEnabled);
-  addVariable('rImgSquareEnabled', rImgSquareEnabled);
-  addVariable('rImgCircleEnabled', rImgCircleEnabled);
-  addVariable('rImgScale', rImgScale);
-  addVariable('rImageDetail', rImageDetail);
-  addVariable('rIShiftX', rIShiftX);
-  addVariable('rIShiftY', rIShiftY);
-  addVariable('rIStrength', rIStrength);
-  addVariable('NOISErIShiftX', NOISErIShiftX);
-  addVariable('NOISErIShiftY', NOISErIShiftY);
-  addVariable('NOISErISpeed', NOISErISpeed);
-  addVariable('rImageAnimateEnabled', rImageAnimateEnabled);
-  addVariable('markerWeight', markerWeight);
-  addVariable('customShapeEnabled', customShapeEnabled);
-  addVariable('invertShapeColor', invertShapeColor);
-  addVariable('brushCanvasEnabled', brushCanvasEnabled);
-  addVariable('invertMarkerColor', invertMarkerColor);
-  
-  return variableData.join('\n');
+  addVariable("invertBgColor", invertBgColor);
+  addVariable("showGridEnabled", showGridEnabled);
+  addVariable("mW", mW);
+  addVariable("mH", mH);
+  addVariable("rows", rows);
+  addVariable("columns", columns);
+  addVariable("lockTextEnabled", lockTextEnabled);
+  addVariable("invertTextColor", invertTextColor);
+  addVariable("myText", myText);
+  addVariable("myTextSize", myTextSize);
+  addVariable("myTextLeading", myTextLeading);
+  addVariable("myTextKerning", myTextKerning);
+  addVariable("hideTxt", hideTxt);
+  addVariable("txtBreak", txtBreak);
+  addVariable("txtSize", txtSize);
+  addVariable("txtLead", txtLead);
+  addVariable("hideImages", hideImages);
+  addVariable("lockImagesEnabled", lockImagesEnabled);
+  addVariable("pImgScale", pImgScale);
+  addVariable("rImgLineEnabled", rImgLineEnabled);
+  addVariable("rImgSquareEnabled", rImgSquareEnabled);
+  addVariable("rImgCircleEnabled", rImgCircleEnabled);
+  addVariable("rImgScale", rImgScale);
+  addVariable("rImageDetail", rImageDetail);
+  addVariable("rIShiftX", rIShiftX);
+  addVariable("rIShiftY", rIShiftY);
+  addVariable("rIStrength", rIStrength);
+  addVariable("NOISErIShiftX", NOISErIShiftX);
+  addVariable("NOISErIShiftY", NOISErIShiftY);
+  addVariable("NOISErISpeed", NOISErISpeed);
+  addVariable("rImageAnimateEnabled", rImageAnimateEnabled);
+  addVariable("markerWeight", markerWeight);
+  addVariable("customShapeEnabled", customShapeEnabled);
+  addVariable("invertShapeColor", invertShapeColor);
+  addVariable("brushCanvasEnabled", brushCanvasEnabled);
+  addVariable("invertMarkerColor", invertMarkerColor);
+
+  return variableData.join("\n");
 }
 
 /////////////////////////////////////////// resize
@@ -266,9 +277,7 @@ function displayIntro(canvas) {
     );
     canvas.pop();
   }
-  
 }
-
 
 function displaySharePNG(canvas) {
   if (showSharePNG) {
