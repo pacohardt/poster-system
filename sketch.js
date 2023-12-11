@@ -33,6 +33,7 @@ function setup() {
   brushCanvas.clear();
 
   mainC.drop(gotFile);
+  setTimeout(showSurveyAlert, 30000);
 
   //////////////////////////////////////////// UI settings ////////////////////////////////////////////
 
@@ -141,14 +142,14 @@ function setup() {
   });
 
   //////////////////////////////////////////// UI TEXT ////////////////////////////////////////////
-  settText.addHTML(
-    "About",
-    "<div id=info-panel>Below you can write your own text and display it. Use the different controls to give it a bit more personality! <br><br>Scroll to find more controls. ⬇</div>"
-  );
   settText.addButton("Randomize all texts", randomAllTexts);
   settText.addBoolean("Lock all texts", false, function (value) {
     lockTextEnabled = value;
   });
+  settText.addHTML(
+    "About",
+    "<div id=info-panel>Below you can write your own text and display it. Use the different controls to give it a bit more personality! <br><br>Scroll to find more controls. ⬇</div>"
+  );
   settText.addBoolean("White text", false, function (value) {
     invertTextColor = value;
     if (value == true) {
@@ -167,7 +168,7 @@ function setup() {
   });
   settText.addButton("Randomize position", randomizeMyTextPositions);
   settText.addButton("Randomize font", generateMyTextFont);
-  settText.addButton("Randomize written text", randomizeMyText);
+  settText.addButton("Randomize everything", randomizeMyText);
   settText.addRange("Size", 20, 300, myTextSize, 1, function (value) {
     myTextSize = value;
   });
@@ -233,13 +234,13 @@ function setup() {
   );
 
   //////////////////////////////////////////// UI IMAGE ////////////////////////////////////////////
-  settImg.addButton("Randomize positions", generateImgPositions);
   settImg.addBoolean("Hide all images", false, function (value) {
     hideImages = value;
   });
   settImg.addBoolean("Lock all images", false, function (value) {
     lockImagesEnabled = value;
   });
+  settImg.addButton("Randomize all positions", generateImgPositions);
   settImg.addRange("Image scale", 0.1, 2, pImgScale, 0.01, function (value) {
     if (
       displayImages.length > 0 &&
@@ -250,8 +251,10 @@ function setup() {
     }
   });
 
-  settImg.addButton("Threshold filter", function (value) {
-    displayImages[currentImage].image.filter(THRESHOLD);
+  settImg.addButton("Threshold my image", function (value) {
+    if (displayImages[currentImage].uploaded) {
+      displayImages[currentImage].image.filter(THRESHOLD);
+    }
   });
 
   settImg.addHTML(
