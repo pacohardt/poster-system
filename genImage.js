@@ -168,8 +168,6 @@ function randomizeRImg() {
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 function loadRandomImage() {
-  currentImage++;
-  imageCounter++;
 
   fetch("https://picsum.photos/720/720?grayscale")
     .then((response) => {
@@ -214,6 +212,9 @@ function loadRandomImage() {
       errorMsg +=
         "Sorry, there was a problem fetching the image!\nPlease restart";
     });
+  
+  currentImage++;
+  imageCounter++;
 }
 
 function reloadRandomImage() {
