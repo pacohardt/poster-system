@@ -176,7 +176,7 @@ function exportPoster() {
   drawTxt(svgCanvas);
   svgCanvas.image(brushCanvas, 0, 0);
 
-  save(svgCanvas, myPoster_editable, "svg");
+  save(svgCanvas, 'myPoster_editable.svg');
   svgCanvas.noLoop();
   showShareSVG = true;
   showSurveyAlert();
