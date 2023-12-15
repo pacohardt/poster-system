@@ -1,4 +1,5 @@
 ////// GENERAL
+let mainC;
 let posterWidth = 752;
 let posterHeight = 1065;
 let colorBg = 255;
