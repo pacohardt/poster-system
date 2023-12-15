@@ -164,15 +164,8 @@ function randomAll() {
 
 /////////////////////////////////////////// export
 function exportPoster() {
-  date = new Date();
-  year = date.getFullYear();
-  month = date.getMonth() + 1;
-  day = date.getDate();
-  hour = date.getHours();
-  minute = date.getMinutes();
-  filename = `POSTER_${year}-${month}-${day}_${hour}-${minute}.png`;
 
-  saveCanvas(mainC, filename);
+  saveCanvas(mainC, 'myPoster.png');
 
   svgCanvas.background(colorBg);
   drawGrid(svgCanvas);
@@ -183,7 +176,7 @@ function exportPoster() {
   drawTxt(svgCanvas);
   svgCanvas.image(brushCanvas, 0, 0);
 
-  save(svgCanvas, filename, "svg");
+  save(svgCanvas, myPoster_editable, "svg");
   svgCanvas.noLoop();
   showShareSVG = true;
   showSurveyAlert();
