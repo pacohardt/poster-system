@@ -172,7 +172,7 @@ function exportPoster() {
   minute = date.getMinutes();
   filename = `POSTER_${year}-${month}-${day}_${hour}-${minute}`;
 
-  saveCanvas(poster, filename, "png");
+  saveCanvas(mainC, filename, "png");
 
   svgCanvas.background(colorBg);
   drawGrid(svgCanvas);
