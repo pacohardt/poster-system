@@ -42,6 +42,7 @@ function placeImage(canvas) {
   if (randomImg) {
     canvas.image(randomImg, randomImageX, randomImageY);
   }
+  
 }
 
 function randomizePImg() {
@@ -200,6 +201,7 @@ function loadRandomImage() {
         x: randomImageX,
         y: randomImageY,
         scale: 1,
+        imageURL: imageURL,
       });
 
       loadImage(imageURL, (img) => {
@@ -253,21 +255,6 @@ function reloadRandomImage() {
 ///////////////////////////////////////// CONTROLS /////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-function highlightSelectedImage(index) {
-  allImages = document.getElementsByClassName("img_ui");
-
-  for (let i = 0; i < allImages.length; i++) {
-    allImages[i].style.transform = "scale(0.7)";
-    allImages[i].style.border = "2px solid transparent";
-  }
-
-  if (index >= 0 && index < allImages.length) {
-    allImages[index].style.filter = "brightness(100%)";
-    allImages[index].style.transform = "scale(1)";
-    allImages[index].style.border = "2px solid #255dbb";
-  }
-}
-
 function nextImage() {
   currentImage++;
   highlightSelectedImage(currentImage);
@@ -289,57 +276,80 @@ function nextImage() {
   updateScaleSliders();
 }
 
+
+function deleteImage() {
+  if (displayImages.length > 0) {
+    const currentIndex = currentImage;
+
+    displayImages.splice(currentIndex, 1);
+    rasterizedImages.splice(currentIndex, 1);
+    deleteSelectedImage(currentIndex);
+    
+    if (currentIndex >= displayImages.length) {
+      currentImage = displayImages.length - 1;
+      imageCounter = currentImage;
+    }
+
+    if (displayImages.length > 0) {
+      rImgObj = rasterizedImages[currentImage];
+      if (rImgObj) {
+        currentImageWidth = rImgObj.width;
+        currentImageHeight = rImgObj.height;
+      }
+    } else {
+      rImgLineEnabled = false;
+      rImgSquareEnabled = false;
+      rImgCircleEnabled = false;
+      rImageAnimateEnabled = false;
+      hideImages = false;
+      rImgObj = null;
+      currentImageWidth = 0;
+      currentImageHeight = 0;
+    }
+
+    highlightSelectedImage(currentImage);
+    updateScaleSliders();
+  }
+}
+
 function deleteSelectedImage(index) {
   const deletedImage = document.getElementById(`storedImg${index}`);
+  
   if (deletedImage) {
     deletedImage.remove();
   }
 
   let updatedImagesHTML = "";
   for (let i = 0; i < displayImages.length; i++) {
-    if (i !== index) {
-      updatedImagesHTML += `<img id='storedImg${i}' class='img_ui' src='${displayImages[i].image.elt.src}' style='width:15%; padding:2px;'></img>`;
+    if (displayImages[i].image) {
+      updatedImagesHTML += `<img id='storedImg${i}' class='img_ui' src='${displayImages[i].imageURL}' style='width:15%; padding:2px;'></img>`;
     }
   }
+  
 
+  imageCounter--;
   allImagesHTML = updatedImagesHTML;
   settAssets.setValue("Images", allImagesHTML);
+
   highlightSelectedImage(currentImage);
 }
 
-function deleteImage() {
-  if (displayImages.length > 0) {
-    const currentIndex = currentImage;
-    deleteSelectedImage(currentIndex);
-    displayImages.splice(currentIndex, 1);
-    rasterizedImages.splice(currentIndex, 1);
-    imageCounter--;
-    if (currentImage >= displayImages.length) {
-      currentImage = displayImages.length - 1;
-      imageCounter = currentImage;
-    }
-    highlightSelectedImage(currentImage);
-    updateScaleSliders();
+function highlightSelectedImage(index) {
+  const allImages = document.getElementsByClassName("img_ui");
+
+  for (let i = 0; i < allImages.length; i++) {
+    allImages[i].style.transform = "scale(0.7)";
+    allImages[i].style.border = "2px solid transparent";
   }
 
-  if (rasterizedImages.length > 0 && currentImage >= displayImages.length) {
-    currentImage = displayImages.length - 1;
-    rImgObj = rasterizedImages[currentImage];
-    currentImageWidth = rImgObj.width;
-    currentImageHeight = rImgObj.height;
-    updateScaleSliders();
-  } else {
-    // Reset settings if no images exist
-    rImgLineEnabled = false;
-    rImgSquareEnabled = false;
-    rImgCircleEnabled = false;
-    rImageAnimateEnabled = false;
-    hideImages = false;
-    rImgObj = null;
-    currentImageWidth = 0;
-    currentImageHeight = 0;
+  if (index >= 0 && index < allImages.length) {
+    allImages[index].style.filter = "brightness(100%)";
+    allImages[index].style.transform = "scale(1)";
+    allImages[index].style.border = "2px solid #255dbb";
   }
 }
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////// OTHER ///////////////////////////////////////////
