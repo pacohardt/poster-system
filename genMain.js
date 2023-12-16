@@ -65,7 +65,6 @@ function gotFile(file) {
   if (file.type === "image") {
     loadImage(file.data, (img) => {
       const uploadedImageURL = img.canvas.toDataURL();
-      uploadedImageURLs.push(uploadedImageURL);
       allImagesHTML += `<img id='storedImg${imageCounter}' class='img_ui' src='${uploadedImageURL}' style='width:15%; padding:2px;'></img>`;
       settAssets.setValue("Images", allImagesHTML);
 
