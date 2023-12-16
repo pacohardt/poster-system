@@ -112,7 +112,7 @@ let NOISErISpeed = 0.005;
 
 ////// IMAGE
 let allImagesHTML = "";
-let imageCounter = -1;
+let imageCounter = 0;
 let allImages;
 let addMoreImages = false;
 let imageURL;
