@@ -51,11 +51,12 @@ function generateGrid() {
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 function showSurveyAlert() {
-  const surveyURL = 'https://forms.gle/2ttXPgsNjhsc1aAN6';
-  const message = "Are you enjoying poster.system? Please consider answering the survey and sharing your poster!";
-  
+  const surveyURL = "https://forms.gle/2ttXPgsNjhsc1aAN6";
+  const message =
+    "Are you enjoying poster.system? Please consider answering the survey and sharing your poster!";
+
   if (confirm(message)) {
-    window.open(surveyURL, '_blank'); 
+    window.open(surveyURL, "_blank");
   }
 }
 
@@ -64,8 +65,8 @@ function gotFile(file) {
   if (file.type === "image") {
     loadImage(file.data, (img) => {
       const uploadedImageURL = img.canvas.toDataURL();
-
-      allImagesHTML += `<img class='img_ui' src='${uploadedImageURL}' style='width:15%; padding:2px;'></img>`;
+      uploadedImageURLs.push(uploadedImageURL);
+      allImagesHTML += `<img id='storedImg${imageCounter}' class='img_ui' src='${uploadedImageURL}' style='width:15%; padding:2px;'></img>`;
       settAssets.setValue("Images", allImagesHTML);
 
       let displayImg = img.get();
@@ -82,6 +83,7 @@ function gotFile(file) {
         y: floor(random(rows) + 1) * cellHeight + currentMarginH,
         scale: 1,
         uploaded: true,
+        imageURL: uploadedImageURL,
       });
 
       currentImageWidth = rasterImg.width;
@@ -164,8 +166,7 @@ function randomAll() {
 
 /////////////////////////////////////////// export
 function exportPoster() {
-
-  saveCanvas(mainC, 'myPoster.png');
+  saveCanvas(mainC, "myPoster.png");
 
   svgCanvas.background(colorBg);
   drawGrid(svgCanvas);
@@ -176,7 +177,7 @@ function exportPoster() {
   drawTxt(svgCanvas);
   svgCanvas.image(brushCanvas, 0, 0);
 
-  save(svgCanvas, 'myPoster_editable.svg');
+  save(svgCanvas, "myPoster_editable.svg");
   svgCanvas.noLoop();
   showShareSVG = true;
   showSurveyAlert();
@@ -201,7 +202,7 @@ function exportVariables() {
   addVariable("myTextLeading", myTextLeading);
   addVariable("myTextKerning", myTextKerning);
   addVariable("hideTxt", hideTxt);
-  addVariable("txtBreak", txtBreak);
+  addVariable("percentageToShow", percentageToShow);
   addVariable("txtSize", txtSize);
   addVariable("txtLead", txtLead);
   addVariable("hideImages", hideImages);
