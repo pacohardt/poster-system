@@ -62,6 +62,7 @@ let myTextMaxWidth = 0;
 let lines, lineWidth;
 
 ////// .TXT 
+let percentageToShow = 50;
 let totalWidt = 0;
 let txtPosX, txtPosY;
 let storedXPositions = [];
