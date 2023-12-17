@@ -171,6 +171,15 @@ function exportPoster() {
   drawGrid(svgCanvas);
   rasterizeImage(svgCanvas);
   placeImage(svgCanvas);
+  if (randomImages.length > 0) {
+    for (let i = 0; i < randomImages.length; i++) {
+      let img = randomImages[i];
+      svgCanvas.push();
+      svgCanvas.translate(displayImages[i].x, displayImages[i].y);
+      svgCanvas.image(img, 0, 0);
+      svgCanvas.pop();
+    }
+  }
   customShape(svgCanvas);
   drawMyText(svgCanvas);
   drawTxt(svgCanvas);
