@@ -112,6 +112,7 @@ let NOISErISpeed = 0.005;
 
 ////// IMAGE
 let allImagesHTML = "";
+let randomImages = [];
 let imageCounter = 0;
 let allImages;
 let addMoreImages = false;
