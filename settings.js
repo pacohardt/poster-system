@@ -152,3 +152,19 @@ let invertShapeColor = false;
 let shapes = [];
 let currentShape = [];
 let colorShape = 0;
+
+////// PATTERN
+let invertPatternColor = false;
+let patternFontIndex = 0;
+let hidePattern = false;
+let colorPattern = 0;
+let patternText = "";
+let patternRadius = 50;
+let patternDetail = 12;
+let patternSpeed = 0.12;
+let patternLength = 50;
+let patternSpacing = 0;
+let patternSize = 10;
+let animatePattern = true;
+let stopFrame = 0;
+let patternRotation = 0;
