@@ -381,6 +381,79 @@ function deleteText() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////// PATTERN  /////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+function generatePatternFont() {
+  patternFontIndex = floor(random(maxFonts));
+}
+
+function generatePattern() {
+  patternSize = random(5, 50);
+  patternRadius = random(1, 100);
+  patternLength = random(0, 100);
+  patternSpeed = random(0.01, 1.0);
+  patternSpacing = random(-50, 100);
+  patternRotation = random(0, 360);
+  generatePatternFont();
+  updatePatternSettings();
+}
+
+function drawPattern(canvas) {
+  if (!hidePattern) {
+    let angleBetweenText = TWO_PI / patternDetail;
+    if (animatePattern) {
+      radius = map(tan(radians(frameCount * patternSpeed)), -1, 1, 0, 150);
+    } else {
+      radius = map(tan(radians(stopFrame * patternSpeed)), -1, 1, 0, 150);
+    }
+
+    canvas.push();
+    canvas.translate(width / 2, height / 2);
+
+    for (let i = 0; i < 150; i++) {
+      canvas.push();
+      canvas.rotate(i * angleBetweenText);
+      canvas.translate(radius, radius);
+      canvas.rotate(radians(patternRotation));
+      prepPattern(canvas);
+      canvas.pop();
+    }
+
+    canvas.pop();
+  }
+}
+
+function prepPattern(canvas) {
+  let arclength = patternLength;
+  let x = 0;
+
+  for (let i = 0; i < patternText.length; i++) {
+    let currentChar = patternText.charAt(i);
+    let w = textWidth(currentChar);
+    arclength += w / 2;
+
+    let theta = PI + arclength / patternRadius;
+
+    canvas.push();
+    canvas.translate(-patternRadius * cos(theta), patternRadius * sin(theta));
+    canvas.rotate(-theta + PI / 2);
+    canvas.textFont(setFont[patternFontIndex]);
+    canvas.textAlign(CENTER, CENTER);
+    canvas.fill(colorPattern);
+    canvas.noStroke();
+    canvas.textSize(patternSize);
+    canvas.text(currentChar, x, 0);
+
+    x += w + patternSpacing;
+
+    canvas.pop();
+    arclength += w / 2;
+  }
+
+  x = 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////// OTHER  //////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 
