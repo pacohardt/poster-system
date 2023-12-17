@@ -23,7 +23,7 @@ function setup() {
 
   calculateDimensions();
 
-  let mainC = createCanvas(proportionalWidth, adjustedHeight);
+  mainC = createCanvas(proportionalWidth, adjustedHeight);
   poster = createGraphics(proportionalWidth, adjustedHeight);
   brushCanvas = createGraphics(proportionalWidth, adjustedHeight);
   svgCanvas = createGraphics(proportionalWidth, adjustedHeight, SVG);
@@ -41,21 +41,24 @@ function setup() {
   settComp = QuickSettings.create(20, 140, "General");
   settAssets = QuickSettings.create(240, 140, "Assets");
   settText = QuickSettings.create(20, 180, "Text");
-  settImg = QuickSettings.create(20, 220, "Image");
-  settDraw = QuickSettings.create(20, 260, "Draw");
-  settCredits = QuickSettings.create(20, 300, "About");
+  settImg = QuickSettings.create(20, 260, "Image");
+  settPattern = QuickSettings.create(20, 220, "Type Pattern");
+  settDraw = QuickSettings.create(20, 300, "Draw");
+  settCredits = QuickSettings.create(20, 340, "About");
 
   settTips.hide();
   settAssets.hide();
   settComp.hide();
   settText.hide();
   settImg.hide();
+  settPattern.hide();
   settDraw.hide();
   settCredits.hide();
 
   settComp.collapse();
   settText.collapse();
   settImg.collapse();
+  settPattern.collapse();
   settDraw.collapse();
   settTips.collapse();
   settCredits.collapse();
@@ -140,6 +143,51 @@ function setup() {
     updateTxtPositions();
     updateMyTextPositions();
   });
+  
+  /////////////////////////////////////////// UI PATTERN ///////////////////////////////////////////
+  settPattern.addText("Type here", "", function (value) {
+    patternText = value;
+  });
+  settPattern.addBoolean("Hide pattern", false, function (value) {
+    hidePattern = value;
+  });
+  settPattern.addBoolean("White text", false, function (value) {
+    invertPatternColor = value;
+    if (value == true) {
+      colorPattern = 255;
+    } else {
+      colorPattern = 0;
+    }
+  });
+  settPattern.addBoolean("Animate", true, function (value) {
+    animatePattern = value;
+    if (!animatePattern) {
+      stopFrame = frameCount;
+    }
+  });
+  settPattern.addButton("Randomize font", generatePatternFont);
+  settPattern.addButton("Randomize pattern", generatePattern);
+  settPattern.addRange("Size", 5, 50, 10, 1, function (value) {
+    patternSize = value;
+  });
+  settPattern.addRange("Shape", 0, 100, 50, 1, function (value) {
+    patternRadius = value;
+  });
+  settPattern.addRange("Detail", 1, 50, 12, 1, function (value) {
+    patternDetail = value;
+  });
+  settPattern.addRange("Speed", 0, 1, 0.12, 0.01, function (value) {
+    patternSpeed = value;
+  });
+  settPattern.addRange("Length", 0, 100, 50, 1, function (value) {
+    patternLength = value;
+  });
+  settPattern.addRange("Spacing", -50, 100, 0, 1, function (value) {
+    patternSpacing = value;
+  });
+  settPattern.addRange("Rotation", 0, 360, 0, 1, function (value) {
+    patternRotation = value;
+  });
 
   //////////////////////////////////////////// UI TEXT ////////////////////////////////////////////
   settText.addButton("Randomize all texts", randomAllTexts);
@@ -203,10 +251,10 @@ function setup() {
   settText.addBoolean("Hide .txt", false, function (value) {
     hideTxt = value;
   });
-  settText.addRange("Length (.txt)", 10, 50, txtBreak, 1, function (value) {
-    txtBreak = value;
+  settText.addRange("Length (.txt)", 0, 100, percentageToShow, 1, function (value) {
+    percentageToShow = value;
     regenerateText();
-  });
+});
   settText.addRange("Size (.txt)", 10, 50, txtSize, 1, function (value) {
     if (
       txtFiles.length > 0 &&
@@ -453,18 +501,18 @@ function draw() {
 
     background(colorBg);
     poster.background(colorBg);
-
+    drawPattern(poster);
     placeImage(poster);
     rasterizeImage(poster);
     customShape(poster);
     drawTxt(poster);
     drawMyText(poster);
     drawGrid(poster);
-
     displayIntro(poster);
     displaySharePNG(poster);
     displayShareSVG(poster);
     imageWarning(poster);
+
 
     if (errorMsg != "") {
       poster.fill(255, 0, 0);
@@ -492,6 +540,7 @@ function draw() {
       settAssets.show();
       settText.show();
       settImg.show();
+      settPattern.show();
       settDraw.show();
       settCredits.show();
 
@@ -515,6 +564,7 @@ function draw() {
       settComp.hide();
       settText.hide();
       settImg.hide();
+      settPattern.hide();
       settDraw.hide();
       settCredits.hide();
     }
