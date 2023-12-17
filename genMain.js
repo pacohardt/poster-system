@@ -170,6 +170,7 @@ function exportPoster() {
   svgCanvas.background(colorBg);
   drawGrid(svgCanvas);
   rasterizeImage(svgCanvas);
+  drawPattern(svgCanvas);
   placeImage(svgCanvas);
   if (randomImages.length > 0) {
     for (let i = 0; i < randomImages.length; i++) {
@@ -228,6 +229,12 @@ function exportVariables() {
   addVariable("NOISErIShiftY", NOISErIShiftY);
   addVariable("NOISErISpeed", NOISErISpeed);
   addVariable("rImageAnimateEnabled", rImageAnimateEnabled);
+  addVariable("patternSize", patternSize);
+  addVariable("patternRadius", patternRadius);
+  addVariable("patternLength", patternLength);
+  addVariable("patternSpeed", patternSpeed);
+  addVariable("patternSpacing", patternSpacing);
+  addVariable("patternRotation", patternRotation);
   addVariable("markerWeight", markerWeight);
   addVariable("customShapeEnabled", customShapeEnabled);
   addVariable("invertShapeColor", invertShapeColor);
@@ -236,7 +243,6 @@ function exportVariables() {
 
   return variableData.join("\n");
 }
-
 /////////////////////////////////////////// resize
 
 function calculateDimensions() {
@@ -327,6 +333,15 @@ function updateTextSettings() {
   settText.setValue("Character spacing", myTextKerning);
   settText.setValue("Size (.txt)", txtSize);
   settText.setValue("Line spacing (.txt)", txtLead);
+}
+
+function updatePatternSettings() {
+  settPattern.setValue("Size", patternSize);
+  settPattern.setValue("Shape", patternRadius);
+  settPattern.setValue("Length", patternLength);
+  settPattern.setValue("Speed", patternSpeed);
+  settPattern.setValue("Spacing", patternSpacing);
+  settPattern.setValue("Rotation", patternRotation);
 }
 
 function updateImgSettings() {
