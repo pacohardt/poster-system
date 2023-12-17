@@ -283,6 +283,7 @@ function deleteImage() {
     const currentIndex = currentImage;
 
     displayImages.splice(currentIndex, 1);
+    randomImages.splice(currentIndex, 1);
     rasterizedImages.splice(currentIndex, 1);
     deleteSelectedImage(currentIndex);
     
