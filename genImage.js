@@ -205,6 +205,7 @@ function loadRandomImage() {
       });
 
       loadImage(imageURL, (img) => {
+        randomImages.push(img);
         rasterizedImages.push(img);
         updateScaleSliders();
       });
