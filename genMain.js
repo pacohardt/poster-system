@@ -109,6 +109,7 @@ function gotFile(file) {
       allTextsHTML += `<div id='storedTxt${textCounter}' class ='txt_ui' style='padding:2px;'>'${firstWord}'</div>`;
       settAssets.setValue("Txts", allTextsHTML);
       textCounter++;
+      currentText++;
       highlightSelectedTxt(currentText);
     }
   }
