@@ -251,10 +251,10 @@ function setup() {
   settText.addBoolean("Hide .txt", false, function (value) {
     hideTxt = value;
   });
-  settText.addRange("Length (.txt)", 0, 100, percentageToShow, 1, function (value) {
-    percentageToShow = value;
+  settText.addRange("Length (.txt)", 10, 50, txtBreak, 1, function (value) {
+    txtBreak = value;
     regenerateText();
-});
+  });
   settText.addRange("Size (.txt)", 10, 50, txtSize, 1, function (value) {
     if (
       txtFiles.length > 0 &&
