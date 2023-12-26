@@ -123,6 +123,11 @@ function setup() {
   settComp.addBoolean("Show Grid", true, function (value) {
     showGridEnabled = value;
   });
+  settComp.addRange("Gutter", 0, 50, gridGutter, 1, function (value) {
+    gridGutter = value;
+    updateTxtPositions();
+    updateMyTextPositions();
+  });
   settComp.addRange("Margin Width", 0.7, 1, mH, 0.01, function (value) {
     mW = value;
     updateTxtPositions();
