@@ -45,6 +45,7 @@ let rows = 52;
 let columns = 5;
 let mW = 0.93;
 let mH = 0.92;
+let gridGutter = 20;
 
 ////// MY TEXT
 let showMyText = true;
