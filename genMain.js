@@ -21,6 +21,14 @@ function drawGrid(canvas) {
         currentMarginW + i * cellWidth,
         canvas.height - currentMarginH
       );
+      if (i !== 0 && i !== columns) {
+        canvas.line(
+          currentMarginW + i * cellWidth - gridGutter,
+          currentMarginH,
+          currentMarginW + i * cellWidth - gridGutter,
+          canvas.height - currentMarginH
+        );
+      }
     }
 
     for (let i = 0; i <= rows; i++) {
