@@ -280,6 +280,28 @@ window.onerror = function (msg, url, lineNo, columnNo, error) {
   return false;
 };
 
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+}
+
+function displayWarning() {
+  showIntro = false;
+  background(255);
+  fill(255, 0, 0);
+  textAlign(CENTER, CENTER);
+  textSize(txtSize * 2);
+  text(":/", width/2, height/4);
+  textSize(txtSize);
+  text(
+    "This tool is not optimized for\nsmartphones/tablets.\n\nPlease use a computer or laptop.",
+    width / 2,
+    height / 2
+  );
+}
+
+
 function displayIntro(canvas) {
   if (showIntro) {
     canvas.push();
