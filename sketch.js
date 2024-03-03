@@ -28,6 +28,10 @@ function setup() {
   brushCanvas = createGraphics(proportionalWidth, adjustedHeight);
   svgCanvas = createGraphics(proportionalWidth, adjustedHeight, SVG);
 
+  if (isMobileDevice()) {
+    displayWarning();
+  } else {
+
   svgCanvas.clear();
   poster.clear();
   brushCanvas.clear();
@@ -484,6 +488,7 @@ function setup() {
   noiseGen.schrittweite[2] = NOISErIStrength;
 
   background(0);
+  }
 }
 
 function draw() {
@@ -574,4 +579,10 @@ function draw() {
       settCredits.hide();
     }
   }
+
+  if (isMobileDevice()) {
+    loading = false;
+    displayWarning();
+  }
+  
 }
