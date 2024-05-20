@@ -63,6 +63,7 @@ let myTextMaxWidth = 0;
 let lines, lineWidth;
 
 ////// .TXT 
+let colorTxt = 0;
 let percentageToShow = 50;
 let totalWidt = 0;
 let txtPosX, txtPosY;
@@ -155,6 +156,12 @@ let currentShape = [];
 let colorShape = 0;
 
 ////// PATTERN
+let patternPosX = 20;
+let patternPosY = 20;
+let patternOffX = 0.5;
+let patternOffY = 0.5;
+let radialPatternEnabled = false;
+let verticalPatternEnabled = false;
 let invertPatternColor = false;
 let patternFontIndex = 0;
 let hidePattern = false;
@@ -166,6 +173,7 @@ let patternSpeed = 0.12;
 let patternLength = 50;
 let patternSpacing = 0;
 let patternSize = 10;
-let animatePattern = true;
+let animatePattRot = false;
+let animatePattSiz = false;
 let stopFrame = 0;
 let patternRotation = 0;
