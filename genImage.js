@@ -170,7 +170,7 @@ function randomizeRImg() {
 
 function loadRandomImage() {
 
-  fetch("https://picsum.photos/720/720?grayscale")
+  fetch("https://picsum.photos/720/720")
     .then((response) => {
       if (!response.ok) {
         errorMsg +=
@@ -227,7 +227,7 @@ function reloadRandomImage() {
       `storedImg${currentImage}`
     );
     if (currentStoredImg) {
-      fetch("https://picsum.photos/720/720?grayscale")
+      fetch("https://picsum.photos/720/720")
         .then((response) => {
           if (!response.ok) {
             errorMsg +=
