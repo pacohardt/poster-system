@@ -58,13 +58,10 @@ function generateGrid() {
 /////////////////////////////////////////// UI /////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-function showSurveyAlert() {
-  const surveyURL = "https://forms.gle/2ttXPgsNjhsc1aAN6";
+function showExport() {
   const message =
-    "Are you enjoying poster.system? Please consider answering the survey and sharing your poster!";
-
+    "Your poster is downloading... I hope you are enjoying poster.system! Don't forget to share your posters and tag me (@paco.hardt)";
   if (confirm(message)) {
-    window.open(surveyURL, "_blank");
   }
 }
 
@@ -79,8 +76,8 @@ function gotFile(file) {
       let displayImg = img.get();
       let rasterImg = img.get();
 
-      displayImg.filter(GRAY);
-      rasterImg.filter(GRAY);
+      //displayImg.filter(GRAY);
+      //rasterImg.filter(GRAY);
 
       highlightSelectedImage(currentImage);
 
@@ -197,8 +194,7 @@ function exportPoster() {
 
   save(svgCanvas, "myPoster_editable.svg");
   svgCanvas.noLoop();
-  showShareSVG = true;
-  showSurveyAlert();
+  showExport();
 }
 function exportVariables() {
   let variableData = [];
@@ -303,17 +299,70 @@ function displayWarning() {
 
 
 function displayIntro(canvas) {
-  if (showIntro) {
+  let tPosY = height/8;
+  let tSize = height/12;
+  let title;
+  let pSize = height/35;
+  let paragraph;  
+  let info;
+  if (showIntro && currentIntro == 1) {
+    title = "Welcome :)";
+    paragraph =
+      "poster.system is an experimental tool that invites reflection on traditional design software and the potential of custom-made tools.\n\nApart from standard functions of text and image manipulation, this tool introduces randomizing generators that let users easily create compositions and play with different layouts.";
+    info = "click to continue (1/3) → "
     canvas.push();
-    canvas.translate(0, 0);
-    canvas.imageMode(CENTER);
-    canvas.image(
-      scrIntro[currentIntro],
-      0.5 * width,
-      0.5 * height,
-      canvas.width,
-      canvas.height
-    );
+    canvas.translate(50, tPosY);
+    canvas.textFont(setFont[2]);
+    canvas.background(255);
+    canvas.noStroke();
+    canvas.textSize(tSize);
+    canvas.textLeading(tSize * 1.3);
+    canvas.text(title, 0, 0, width * 0.9);
+    canvas.textSize(pSize);
+    canvas.textLeading(pSize * 1.3);
+    canvas.text(paragraph, 0, height * 0.3, width * 0.8);
+    canvas.fill(0, 0, 255);
+    canvas.text(info, 0, height * 0.85, width * 0.8);
+    print(width, height);
+    canvas.pop();
+  } else if (showIntro && currentIntro == 2) {
+    title = "Same... but different"
+    paragraph =
+      "• drag and drop your own files (.jpg, .png and .txt)\n\n• double-click a panel to open it (you can also drag them around)\n\n• play around and embrace randomness!\n\n• export and share!";
+    info = "click to continue (2/3) → "
+    canvas.push();
+    canvas.translate(50, tPosY);
+    canvas.textFont(setFont[2]);
+    canvas.background(255);
+    canvas.noStroke();
+    canvas.textSize(tSize);
+    canvas.textLeading(tSize * 1.3);
+    canvas.text(title, 0, 0, width * 0.8);
+    canvas.textSize(pSize);
+    canvas.textLeading(pSize * 1.3);
+    canvas.text(paragraph, 0, height * 0.3, width * 0.8);
+    canvas.fill(0, 0, 255);
+    canvas.text(info, 0, height * 0.85, width * 0.8);
+    canvas.pop();
+  }
+  else if (showIntro && currentIntro == 3) {
+    title = "Have fun!"
+    paragraph =
+      "Remember, poster.system is not perfect and is not meant to replace professional design software.\n\nEnjoy the limitations! and don't forget to share your creations on instagram! (tag me @paco.hardt)";
+    info = "click to begin → "
+    canvas.push();
+    canvas.translate(50, tPosY);
+    canvas.textFont(setFont[2]);
+    canvas.background(255);
+    canvas.noStroke();
+    canvas.textSize(tSize);
+    canvas.textLeading(tSize * 1.3);
+    canvas.text(title, 0, 0, width * 0.8);
+    canvas.textSize(pSize);
+    canvas.textLeading(pSize * 1.3);
+    canvas.text(paragraph, 0, height * 0.3, width * 0.8);
+    canvas.fill(0, 0, 255);
+    canvas.text(info, 0, height * 0.85, width * 0.8);
     canvas.pop();
   }
 }
@@ -339,7 +388,7 @@ function displayShareSVG(canvas) {
 function keyTyped() {
   if (key === "s") {
     showIntro = false;
-    currentIntro = 7;
+    currentIntro = 4;
   }
 }
 
