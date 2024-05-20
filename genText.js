@@ -13,6 +13,10 @@ function drawMyText(canvas) {
     let numLinesCstmText = lines.length;
 
     let hHead = myTextSize + myTextLeading * (numLinesCstmText - 1);
+    let typePicker = document.getElementById("tyPicker");
+    if (typePicker != null) {
+      colorType = typePicker.value;
+    }
 
     canvas.noStroke();
     canvas.fill(colorType);
@@ -138,9 +142,13 @@ function drawTxt(canvas) {
       const draggableX = textObj.x;
       const totalHeight = textObj.y + h;
       const draggableY = totalHeight - h;
+      let txtPicker = document.getElementById("txPicker");
+      if (txtPicker != null) {
+        colorTxt = txtPicker.value;
+      }
 
       canvas.noStroke();
-      canvas.fill(colorType);
+      canvas.fill(colorTxt);
       canvas.textFont(setFont[txtFontIndex]);
       canvas.textSize(txtSize);
       totalWidth = calculateTextWidth(textObj.text) * 2;
@@ -177,7 +185,6 @@ function calculateTextWidth(text) {
 
   return totalWidth;
 }
-
 
 function randomizeTxtPositions() {
   currentMarginW = proportionalWidth * mW;
@@ -232,10 +239,10 @@ function randomizeTxt() {
   randomizeTxtPositions();
   let moreTexts = false;
   moreTexts = random(1) < 0.5;
-  if (moreTexts){
+  if (moreTexts) {
     loadHipsterText();
   }
-  
+
   txtBreak = random(10, 50);
   txtSize = random(20, 80);
   txtLead = random(txtSize * 0.7, txtSize * 1.4);
@@ -254,14 +261,16 @@ function loadHipsterText() {
   fetch(url)
     .then((response) => {
       if (!response.ok) {
-        errorMsg += "Sorry, there was a problem fetching the text!\nPlease restart";
+        errorMsg +=
+          "Sorry, there was a problem fetching the text!\nPlease restart";
         throw new Error("Network response was not ok");
       }
       return response.json();
     })
     .catch((error) => {
       console.error("There was a problem fetching the text:", error);
-      errorMsg += "Sorry, there was a problem fetching the text!\nPlease restart";
+      errorMsg +=
+        "Sorry, there was a problem fetching the text!\nPlease restart";
     });
 }
 
@@ -399,9 +408,9 @@ function generatePattern() {
 }
 
 function drawPattern(canvas) {
-  if (!hidePattern) {
+  if (!hidePattern && radialPatternEnabled) {
     let angleBetweenText = TWO_PI / patternDetail;
-    if (animatePattern) {
+    if (animatePattRot) {
       radius = map(tan(radians(frameCount * patternSpeed)), -1, 1, 0, 150);
     } else {
       radius = map(tan(radians(stopFrame * patternSpeed)), -1, 1, 0, 150);
@@ -421,6 +430,59 @@ function drawPattern(canvas) {
 
     canvas.pop();
   }
+
+  if (!hidePattern && verticalPatternEnabled) {
+    let arclength = patternLength;
+    let x = 0;
+    for (let j = 0; j < patternDetail; j++) {
+      let offY = j + patternOffY;
+      for (let i = 0; i < patternText.length; i++) {
+        let offX = i + patternOffX;
+        let currentChar = patternText.charAt(i);
+        let w = textWidth(currentChar);
+        arclength += w / 2;
+        let theta = PI + arclength / patternRotation;
+        let motion = -theta + PI / 2 + patternRotation;
+        let newSize = patternSize;
+        let radius = -theta + PI / 2 + patternRotation;
+
+        if (animatePattRot) {
+          radius = map(
+            sin(radians(frameCount * patternSpeed)),
+            -1,
+            1,
+            -motion,
+            motion
+          );
+        }
+        if (animatePattSiz) {
+          newSize = map(
+            sin(radians(frameCount * patternSpeed * offY * offX)),
+            -1,
+            1,
+            patternSize / 3,
+            patternSize
+          );
+        } 
+
+        canvas.push();
+        canvas.translate(patternPosX, patternPosY + j * patternLength);
+        canvas.rotate(radians(radius * j * 1));
+        canvas.textFont(setFont[patternFontIndex]);
+        canvas.textAlign(CENTER, CENTER);
+        canvas.fill(colorPattern);
+        canvas.noStroke();
+        canvas.textSize(newSize);
+        canvas.text(currentChar, x, 0);
+
+        x += w + patternSpacing;
+
+        canvas.pop();
+      }
+
+      x = 0;
+    }
+  }
 }
 
 function prepPattern(canvas) {
@@ -433,6 +495,10 @@ function prepPattern(canvas) {
     arclength += w / 2;
 
     let theta = PI + arclength / patternRadius;
+    let patternPicker = document.getElementById("pnPicker");
+    if (patternPicker != null) {
+      colorPattern = patternPicker.value;
+    }
 
     canvas.push();
     canvas.translate(-patternRadius * cos(theta), patternRadius * sin(theta));
