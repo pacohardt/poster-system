@@ -102,6 +102,10 @@ function mousePressed() {
       currentShape.push(createVector(mouseX, mouseY));
 
       if (currentShape.length === 4) {
+        let shapePicker = document.getElementById('shPicker');
+    if (shapePicker != null){
+      colorShape = shapePicker.value
+    }
         noStroke();
         fill(colorShape);
         ellipse(currentShape[3].x, currentShape[3].y, 10, 10);
