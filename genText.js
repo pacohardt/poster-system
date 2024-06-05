@@ -97,8 +97,6 @@ function generateMyTextPositions() {
   let randomBaseline = floor(random(baselines + 1));
   let cellWidth = currentPosterWidth / columns;
   let randomColumn = floor(random(columns));
-  currentBaselineMyText = randomBaseline;
-  currentColumnMyText = randomColumn;
 
   myTextObj.x = marginWidth + randomColumn * cellWidth + gridGutter / 2;
   myTextObj.y =
@@ -203,8 +201,6 @@ function generateTxtPositions() {
       let randomBaseline = floor(random(baselines + 1));
       let cellWidth = currentPosterWidth / columns;
       let randomColumn = floor(random(columns));
-      storedBaselinesTxt[i] = randomBaseline;
-      storedColumnsTxt[i] = randomColumn;
 
       txtFiles[i].x = marginWidth + randomColumn * cellWidth + gridGutter / 2;
       txtFiles[i].y = marginHeight + randomBaseline * baselineSpacing + gridGutter / 2;
