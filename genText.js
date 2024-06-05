@@ -47,6 +47,7 @@ function drawMyText(canvas) {
     if (myTextObj === myTextDragged) {
       myTextObj.x = mouseX - myText0ffsetX;
       myTextObj.y = mouseY - myText0ffsetY;
+      storeRelativePosition(myTextObj);
     }
 
     if (
@@ -82,30 +83,29 @@ function calculateMyTextMaxWidth(text) {
   return maxWidth;
 }
 
-function randomizeMyTextPositions() {
-  currentMarginW = proportionalWidth * mW;
-  currentMarginH = adjustedHeight * mH;
-  cellWidth = (poster.width - 2 * currentMarginW) / columns;
-  cellHeight = (poster.height - 2 * currentMarginH) / rows;
-  myTextObj.x = floor(random(columns) + 1) * cellWidth + currentMarginW;
-  myTextObj.y = floor(random(rows) + 1) * cellHeight + currentMarginH;
-}
+function generateMyTextPositions() {
+  calculateDimensions();
 
-function updateMyTextPositions() {
-  let storedXPosPercent =
-    (myTextObj.x - currentMarginW) / (columns * cellWidth);
-  let storedYPosPercent = (myTextObj.y - currentMarginH) / (rows * cellHeight);
+  currentPosterHeight = adjustedCanvasHeight * mH;
+  currentPosterWidth = adjustedCanvasWidth * mW;
+  fullMarginHeight = adjustedCanvasHeight - currentPosterHeight;
+  fullMarginWidth = adjustedCanvasWidth - currentPosterWidth;
+  marginHeight = fullMarginHeight / 2;
+  marginWidth = fullMarginWidth / 2;
 
-  currentMarginW = proportionalWidth * mW;
-  currentMarginH = adjustedHeight * mH;
-  cellWidth = (poster.width - 2 * currentMarginW) / columns;
-  cellHeight = (poster.height - 2 * currentMarginH) / rows;
+  let baselineSpacing = (currentPosterHeight - gridGutter) / baselines;
+  let randomBaseline = floor(random(baselines + 1));
+  let cellWidth = currentPosterWidth / columns;
+  let randomColumn = floor(random(columns));
+  currentBaselineMyText = randomBaseline;
+  currentColumnMyText = randomColumn;
 
-  let myTextNewX = storedXPosPercent * (columns * cellWidth) + currentMarginW;
-  let myTextNewY = storedYPosPercent * (rows * cellHeight) + currentMarginH;
+  myTextObj.x = marginWidth + randomColumn * cellWidth + gridGutter / 2;
+  myTextObj.y =
+    marginHeight + randomBaseline * baselineSpacing + gridGutter / 2;
+  
+  storeRelativePosition(myTextObj);
 
-  myTextObj.x = myTextNewX;
-  myTextObj.y = myTextNewY;
 }
 
 function generateMyTextFont() {
@@ -113,7 +113,7 @@ function generateMyTextFont() {
 }
 
 function randomizeMyText() {
-  randomizeMyTextPositions();
+  generateMyTextPositions();
   generateMyTextFont();
   showMyText = true;
   myTextSize = random(20, 300);
@@ -169,6 +169,7 @@ function drawTxt(canvas) {
       if (textObj === txtDragged) {
         textObj.x = mouseX - txtOffsetX;
         textObj.y = mouseY - txtOffsetY;
+        storeRelativePosition(txtFiles[i]);
       }
     }
   }
@@ -186,47 +187,29 @@ function calculateTextWidth(text) {
   return totalWidth;
 }
 
-function randomizeTxtPositions() {
-  currentMarginW = proportionalWidth * mW;
-  currentMarginH = adjustedHeight * mH;
-  cellWidth = (poster.width - 2 * currentMarginW) / columns;
-  cellHeight = (poster.height - 2 * currentMarginH) / rows;
+function generateTxtPositions() {
+  calculateDimensions();
+
+  currentPosterHeight = adjustedCanvasHeight * mH;
+  currentPosterWidth = adjustedCanvasWidth * mW;
+  fullMarginHeight = adjustedCanvasHeight - currentPosterHeight;
+  fullMarginWidth = adjustedCanvasWidth - currentPosterWidth;
+  marginHeight = fullMarginHeight / 2;
+  marginWidth = fullMarginWidth / 2;
 
   for (let i = 0; i < txtFiles.length; i++) {
     if (txtFiles[i]) {
-      txtFiles[i].x = floor(random(columns) + 1) * cellWidth + currentMarginW;
-      txtFiles[i].y = floor(random(rows) + 1) * cellHeight + currentMarginH;
-    }
-  }
-}
+      let baselineSpacing = (currentPosterHeight - gridGutter) / baselines;
+      let randomBaseline = floor(random(baselines + 1));
+      let cellWidth = currentPosterWidth / columns;
+      let randomColumn = floor(random(columns));
+      storedBaselinesTxt[i] = randomBaseline;
+      storedColumnsTxt[i] = randomColumn;
 
-function updateTxtPositions() {
-  const storedTextPositions = [];
-
-  for (let i = 0; i < txtFiles.length; i++) {
-    if (txtFiles[i]) {
-      const xPosPercent =
-        (txtFiles[i].x - currentMarginW) / (columns * cellWidth);
-      const yPosPercent =
-        (txtFiles[i].y - currentMarginH) / (rows * cellHeight);
-      storedTextPositions.push({ x: xPosPercent, y: yPosPercent });
-    }
-  }
-
-  let txtCurrentMarginW = proportionalWidth * mW;
-  let txtCurrentMarginH = adjustedHeight * mH;
-  let txtCellWidth = (poster.width - 2 * txtCurrentMarginW) / columns;
-  let txtCellHeight = (poster.height - 2 * txtCurrentMarginH) / rows;
-
-  for (let i = 0; i < txtFiles.length; i++) {
-    if (txtFiles[i]) {
-      const newX =
-        storedTextPositions[i].x * (columns * txtCellWidth) + txtCurrentMarginW;
-      const newY =
-        storedTextPositions[i].y * (rows * txtCellHeight) + txtCurrentMarginH;
-
-      txtFiles[i].x = newX;
-      txtFiles[i].y = newY;
+      txtFiles[i].x = marginWidth + randomColumn * cellWidth + gridGutter / 2;
+      txtFiles[i].y = marginHeight + randomBaseline * baselineSpacing + gridGutter / 2;
+      
+      storeRelativePosition(txtFiles[i]);
     }
   }
 }
@@ -236,7 +219,7 @@ function generateTxtFont() {
 }
 
 function randomizeTxt() {
-  randomizeTxtPositions();
+  generateTxtPositions();
   let moreTexts = false;
   moreTexts = random(1) < 0.5;
   if (moreTexts) {
@@ -248,7 +231,7 @@ function randomizeTxt() {
   txtLead = random(txtSize * 0.7, txtSize * 1.4);
   generateTxtFont();
   updateTextSettings();
-  regenerateText();
+  //regenerateText();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -276,36 +259,52 @@ function loadHipsterText() {
 
 function gotData(data) {
   const randomText = data[0];
-  displayText(randomText);
+  processText(randomText);
 }
 
-function displayText(randomText) {
+function processText(text) {
   let modifiedText = "";
   const currentTxtBreak = txtBreak;
 
-  for (let i = 0; i < randomText.length; i += currentTxtBreak) {
-    modifiedText += randomText.substring(i, i + currentTxtBreak) + "\n";
+  for (let i = 0; i < text.length; i += currentTxtBreak) {
+    modifiedText += text.substring(i, i + currentTxtBreak) + "\n";
   }
 
-  txtFiles[currentText] = {
+  calculateDimensions();
+
+  currentPosterHeight = adjustedCanvasHeight * mH;
+  currentPosterWidth = adjustedCanvasWidth * mW;
+  fullMarginHeight = adjustedCanvasHeight - currentPosterHeight;
+  fullMarginWidth = adjustedCanvasWidth - currentPosterWidth;
+  marginHeight = fullMarginHeight / 2;
+  marginWidth = fullMarginWidth / 2;
+
+  let baselineSpacing = (currentPosterHeight - gridGutter) / baselines;
+  let randomBaseline = floor(random(baselines + 1));
+  let cellWidth = currentPosterWidth / columns;
+  let randomColumn = floor(random(columns));
+
+  txtFiles.push({
     text: modifiedText.trim(),
-    x: floor(random(columns) + 1) * cellWidth + currentMarginW,
-    y: floor(random(rows) + 1) * cellHeight + currentMarginH,
+    x: marginWidth + randomColumn * cellWidth + gridGutter / 2,
+    y: marginHeight + randomBaseline * baselineSpacing + gridGutter / 2,
     numLines: ceil(modifiedText.length / currentTxtBreak),
     size: 20,
     lead: 20,
-  };
-
+  });
+  
+  
   let updatedTextsHTML = "";
   for (let i = 0; i < txtFiles.length; i++) {
     const textLines = txtFiles[i].text.split("\n");
     let firstWord = textLines[0].split(" ")[0] + "...";
     updatedTextsHTML += `<div id='storedTxt${i}' class ='txt_ui' style='padding:2px;'>${firstWord}</div>`;
+    storeRelativePosition(txtFiles[i]);
   }
 
   allTextsHTML = updatedTextsHTML;
   settAssets.setValue("Txts", allTextsHTML);
-  highlightSelectedTxt(currentText);
+  highlightSelectedTxt(txtFiles.length - 1);
 }
 
 function regenerateText() {
@@ -314,7 +313,7 @@ function regenerateText() {
     const originalX = txtFiles[currentText].x;
     const originalY = txtFiles[currentText].y;
     const originalSize = txtFiles[currentText].size;
-    displayText(latestText);
+    setRandomText(latestText);
     txtFiles[currentText].size = originalSize;
     txtFiles[currentText].x = originalX;
     txtFiles[currentText].y = originalY;
@@ -324,6 +323,16 @@ function regenerateText() {
 ////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////// CONTROL  /////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
+
+function storeRelativePosition(txt) {
+  txt.relativeX = (txt.x - marginWidth) / currentPosterWidth;
+  txt.relativeY = (txt.y - marginHeight) / currentPosterHeight;
+}
+
+function updateTextPosition(txt) {
+  txt.x = marginWidth + txt.relativeX * currentPosterWidth;
+  txt.y = marginHeight + txt.relativeY * currentPosterHeight;
+}
 
 function highlightSelectedTxt(index) {
   allTexts = document.getElementsByClassName("txt_ui");
@@ -362,7 +371,7 @@ function deleteSelectedText(index) {
   for (let i = 0; i < txtFiles.length; i++) {
     // Reassign IDs based on the loop index
     const textLines = txtFiles[i].text.split("\n");
-    let firstWord = textLines[0].split(" ")[0] + "...";
+    let firstWord = textLines[0].split(" ")[0] + " ...";
     updatedTextsHTML += `<div id='storedTxt${i}' class ='txt_ui' style='padding:2px;'>${firstWord}</div>`;
   }
 
@@ -378,7 +387,7 @@ function deleteText() {
     deleteSelectedText(currentIndexTxt);
     textCounter--;
     if (currentText >= txtFiles.length) {
-      currentText = txtFiles.length - 1;
+      //currentText = txtFiles.length - 1;
       textCounter = currentText;
     }
     highlightSelectedTxt(currentText);
@@ -463,7 +472,7 @@ function drawPattern(canvas) {
             patternSize / 3,
             patternSize
           );
-        } 
+        }
 
         canvas.push();
         canvas.translate(patternPosX, patternPosY + j * patternLength);
