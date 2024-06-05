@@ -5,53 +5,109 @@
 function drawGrid(canvas) {
   calculateDimensions();
 
-  currentMarginW = proportionalWidth * mW;
-  currentMarginH = adjustedHeight * mH;
-  cellWidth = (canvas.width - 2 * currentMarginW) / columns;
-  cellHeight = (canvas.height - 2 * currentMarginH) / rows;
+  currentPosterWidth = adjustedCanvasWidth * mW;
+  currentPosterHeight = adjustedCanvasHeight * mH;
+  fullMarginWidth = adjustedCanvasWidth - currentPosterWidth;
+  fullMarginHeight = adjustedCanvasHeight - currentPosterHeight;
+  marginWidth = fullMarginWidth / 2;
+  marginHeight = fullMarginHeight / 2;
+  cellWidth = currentPosterWidth / columns;
+  cellHeight = currentPosterHeight / rows;
+  canvas.noStroke();
 
-  if (showGridEnabled) {
-    canvas.stroke(255, 0, 0);
-    canvas.strokeWeight(1);
-
-    for (let i = 0; i <= columns; i++) {
-      canvas.line(
-        currentMarginW + i * cellWidth,
-        currentMarginH,
-        currentMarginW + i * cellWidth,
-        canvas.height - currentMarginH
-      );
-      if (i !== 0 && i !== columns) {
-        canvas.line(
-          currentMarginW + i * cellWidth - gridGutter,
-          currentMarginH,
-          currentMarginW + i * cellWidth - gridGutter,
-          canvas.height - currentMarginH
+  if (showLayoutGrid) {
+    for (let i = 0; i < columns; i++) {
+      for (let j = 0; j < rows; j++) {
+        
+        canvas.fill(255, 0, 0, 50);
+        canvas.rect(
+          marginWidth + i * cellWidth + gridGutter / 2,
+          marginHeight + j * cellHeight + gridGutter / 2,
+          cellWidth - gridGutter,
+          cellHeight - gridGutter
         );
       }
     }
-
-    for (let i = 0; i <= rows; i++) {
-      canvas.line(
-        currentMarginW,
-        currentMarginH + i * cellHeight,
-        canvas.width - currentMarginW,
-        currentMarginH + i * cellHeight
+  } else if (showRows) {
+    for (let j = 0; j < rows; j++) {
+      canvas.fill(255, 0, 0, 50);
+      canvas.rect(
+        marginWidth + gridGutter / 2,
+        marginHeight + j * cellHeight + gridGutter / 2,
+        currentPosterWidth - gridGutter,
+        cellHeight - gridGutter
+      );
+    }
+  } else if (showColumns) {
+    for (let i = 0; i < columns; i++) {
+      canvas.fill(255, 0, 0, 50);
+      canvas.rect(
+        marginWidth + i * cellWidth + gridGutter / 2,
+        marginHeight + gridGutter / 2,
+        cellWidth - gridGutter,
+        currentPosterHeight - gridGutter
       );
     }
   }
+
+  if (showBaselineGrid) {
+    let baselineSpacing = (currentPosterHeight - gridGutter) / baselines;
+
+    for (let i = 0; i <= baselines; i++) {
+      let y = marginHeight + i * baselineSpacing + gridGutter / 2;
+      canvas.stroke(0, 0, 255, 50);
+      canvas.line(
+        marginWidth + gridGutter / 2,
+        y,
+        marginWidth + currentPosterWidth - gridGutter / 2,
+        y
+      );
+    }
+    for (let j = 1; j <= columns - 1; j++) {
+      canvas.line(
+        marginWidth + j * cellWidth + gridGutter / 2,
+        marginHeight + gridGutter / 2,
+        marginWidth + j * cellWidth + gridGutter / 2,
+        marginHeight + currentPosterHeight - gridGutter / 2
+      );
+      canvas.line(
+        marginWidth + j * cellWidth - gridGutter / 2,
+        marginHeight + gridGutter / 2,
+        marginWidth + j * cellWidth - gridGutter / 2,
+        marginHeight + currentPosterHeight - gridGutter / 2
+      );
+    }
+    canvas.line(
+      marginWidth + 0 * cellWidth + gridGutter / 2,
+      marginHeight + gridGutter / 2,
+      marginWidth + 0 * cellWidth + gridGutter / 2,
+      marginHeight + currentPosterHeight - gridGutter / 2
+    );
+    canvas.line(
+      marginWidth + columns * cellWidth - gridGutter / 2,
+      marginHeight + gridGutter / 2,
+      marginWidth + columns * cellWidth - gridGutter / 2,
+      marginHeight + currentPosterHeight - gridGutter / 2
+    );
+  }
+  canvas.fill(0);
 }
 
 function generateGrid() {
   calculateDimensions();
   columns = floor(random(2, 13));
-  rows = floor(random(16, 73));
+  rows = floor(random(2, 11));
+  gridGutter = floor(random(0, 50));
   mW = random(0.7, 1);
   mH = random(0.7, 1);
   generateImgPositions();
-  updateTxtPositions();
-  updateMyTextPositions();
-  updateCompSettings();
+  generateTxtPositions();
+  generateMyTextPositions();
+  settComp.setValue("Margin Width", mW);
+  settComp.setValue("Margin Height", mH);
+  settComp.setValue("Rows", rows);
+  settComp.setValue("Columns", columns);
+  settComp.setValue("Gutter", gridGutter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,15 +132,12 @@ function gotFile(file) {
       let displayImg = img.get();
       let rasterImg = img.get();
 
-      //displayImg.filter(GRAY);
-      //rasterImg.filter(GRAY);
-
       highlightSelectedImage(currentImage);
 
       displayImages.push({
         image: displayImg,
-        x: floor(random(columns) + 1) * cellWidth + currentMarginW,
-        y: floor(random(rows) + 1) * cellHeight + currentMarginH,
+        x: floor(random(columns) + 1) * cellWidth + currentPosterWidth,
+        y: floor(random(rows) + 1) * cellHeight + currentPosterHeight,
         scale: 1,
         uploaded: true,
         imageURL: uploadedImageURL,
@@ -99,23 +152,7 @@ function gotFile(file) {
     imageCounter++;
   } else if (file.type === "text") {
     if (txtFiles.length < maxTextFiles) {
-      const textLines = file.data.split("\n");
-      let firstWord = textLines[0].split(" ")[0] + "...";
-      const numLines = textLines.length;
-      txtFiles.push({
-        text: file.data,
-        x: floor(random(columns) + 1) * cellWidth + currentMarginW,
-        y: floor(random(rows) + 1) * cellHeight + currentMarginH,
-        numLines: numLines,
-        size: 20,
-        lead: 20,
-      });
-
-      allTextsHTML += `<div id='storedTxt${textCounter}' class ='txt_ui' style='padding:2px;'>'${firstWord}'</div>`;
-      settAssets.setValue("Txts", allTextsHTML);
-      textCounter++;
-      currentText++;
-      highlightSelectedTxt(currentText);
+      processText(file.data);
     }
   }
 }
@@ -144,26 +181,11 @@ function deleteAll() {
 
 /////////////////////////////////////////// generate poster
 function randomAll() {
-  showGridEnabled = false;
   generateGrid();
-
   randomAllTexts();
   randomizePImg();
   randomizeRImg();
   reloadRandomImage();
-
-  invertBgColor = random(1) < 0.5;
-  invertTextColor = random(1) < 0.5;
-  invertShapeColor = random(1) < 0.5;
-  invertMarkerColor = random(1) < 0.5;
-
-  if (invertBgColor) {
-    invertTextColor = true;
-  } else if (invertTextColor) {
-    invertBgColor = true;
-  }
-
-  updateCompSettings();
   updateImgSettings();
   updateDrawSettings();
   updateTextSettings();
@@ -203,14 +225,12 @@ function exportVariables() {
     variableData.push(`${name} = ${value};`);
   }
 
-  addVariable("invertBgColor", invertBgColor);
-  addVariable("showGridEnabled", showGridEnabled);
+  addVariable("showBaselineGrid", showBaselineGrid);
   addVariable("mW", mW);
   addVariable("mH", mH);
   addVariable("rows", rows);
   addVariable("columns", columns);
   addVariable("lockTextEnabled", lockTextEnabled);
-  addVariable("invertTextColor", invertTextColor);
   addVariable("myText", myText);
   addVariable("myTextSize", myTextSize);
   addVariable("myTextLeading", myTextLeading);
@@ -242,26 +262,24 @@ function exportVariables() {
   addVariable("patternRotation", patternRotation);
   addVariable("markerWeight", markerWeight);
   addVariable("customShapeEnabled", customShapeEnabled);
-  addVariable("invertShapeColor", invertShapeColor);
   addVariable("brushCanvasEnabled", brushCanvasEnabled);
-  addVariable("invertMarkerColor", invertMarkerColor);
 
   return variableData.join("\n");
 }
 /////////////////////////////////////////// resize
 
 function calculateDimensions() {
-  adjustedHeight = windowHeight * scaleFactor;
-  proportionalWidth = (posterWidth * adjustedHeight) / posterHeight;
+  adjustedCanvasHeight = windowHeight * scaleFactor;
+  adjustedCanvasWidth = (posterWidth * adjustedCanvasHeight) / posterHeight;
 }
 
 function windowResized() {
   calculateDimensions();
 
-  resizeCanvas(proportionalWidth, adjustedHeight);
-  poster.resizeCanvas(proportionalWidth, adjustedHeight);
-  brushCanvas.resizeCanvas(proportionalWidth, adjustedHeight);
-  svgCanvas.resizeCanvas(proportionalWidth, adjustedHeight);
+  resizeCanvas(adjustedCanvasWidth, adjustedCanvasHeight);
+  poster.resizeCanvas(adjustedCanvasWidth, adjustedCanvasHeight);
+  brushCanvas.resizeCanvas(adjustedCanvasWidth, adjustedCanvasHeight);
+  svgCanvas.resizeCanvas(adjustedCanvasWidth, adjustedCanvasHeight);
 }
 
 /////////////////////////////////////////// screens
@@ -288,7 +306,7 @@ function displayWarning() {
   fill(255, 0, 0);
   textAlign(CENTER, CENTER);
   textSize(txtSize * 2);
-  text(":/", width/2, height/4);
+  text(":/", width / 2, height / 4);
   textSize(txtSize);
   text(
     "This tool is not optimized for\nsmartphones/tablets.\n\nPlease use a computer or laptop.",
@@ -297,19 +315,18 @@ function displayWarning() {
   );
 }
 
-
 function displayIntro(canvas) {
-  let tPosY = height/8;
-  let tSize = height/12;
+  let tPosY = height / 8;
+  let tSize = height / 12;
   let title;
-  let pSize = height/35;
-  let paragraph;  
+  let pSize = height / 35;
+  let paragraph;
   let info;
   if (showIntro && currentIntro == 1) {
     title = "Welcome :)";
     paragraph =
       "poster.system is an experimental tool that invites reflection on traditional design software and the potential of custom-made tools.\n\nApart from standard functions of text and image manipulation, this tool introduces randomizing generators that let users easily create compositions and play with different layouts.";
-    info = "click to continue (1/3) → "
+    info = "click to continue (1/3) → ";
     canvas.push();
     canvas.translate(50, tPosY);
     canvas.textFont(setFont[2]);
@@ -323,13 +340,12 @@ function displayIntro(canvas) {
     canvas.text(paragraph, 0, height * 0.3, width * 0.8);
     canvas.fill(0, 0, 255);
     canvas.text(info, 0, height * 0.85, width * 0.8);
-    print(width, height);
     canvas.pop();
   } else if (showIntro && currentIntro == 2) {
-    title = "Same... but different"
+    title = "Same... but different";
     paragraph =
       "• drag and drop your own files (.jpg, .png and .txt)\n\n• double-click a panel to open it (you can also drag them around)\n\n• play around and embrace randomness!\n\n• export and share!";
-    info = "click to continue (2/3) → "
+    info = "click to continue (2/3) → ";
     canvas.push();
     canvas.translate(50, tPosY);
     canvas.textFont(setFont[2]);
@@ -344,12 +360,11 @@ function displayIntro(canvas) {
     canvas.fill(0, 0, 255);
     canvas.text(info, 0, height * 0.85, width * 0.8);
     canvas.pop();
-  }
-  else if (showIntro && currentIntro == 3) {
-    title = "Have fun!"
+  } else if (showIntro && currentIntro == 3) {
+    title = "Have fun!";
     paragraph =
       "Remember, poster.system is not perfect and is not meant to replace professional design software.\n\nEnjoy the limitations! and don't forget to share your creations on instagram! (tag me @paco.hardt)";
-    info = "click to begin → "
+    info = "click to begin → ";
     canvas.push();
     canvas.translate(50, tPosY);
     canvas.textFont(setFont[2]);
@@ -367,24 +382,6 @@ function displayIntro(canvas) {
   }
 }
 
-function displaySharePNG(canvas) {
-  if (showSharePNG) {
-    canvas.push();
-    canvas.translate(0, 0);
-    canvas.imageMode(CENTER);
-    canvas.image(scrPNG, 0.5 * width, 0.5 * height);
-    canvas.pop();
-  }
-}
-function displayShareSVG(canvas) {
-  if (showShareSVG) {
-    canvas.push();
-    canvas.translate(0, 0);
-    canvas.imageMode(CENTER);
-    canvas.image(scrSVG, 0.5 * width, 0.5 * height);
-    canvas.pop();
-  }
-}
 function keyTyped() {
   if (key === "s") {
     showIntro = false;
@@ -396,18 +393,8 @@ function keyTyped() {
 ///////////////////////////////////////// UPDATE UI ////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-function updateCompSettings() {
-  settComp.setValue("Show Grid", showGridEnabled);
-  settComp.setValue("Margin Width", mW);
-  settComp.setValue("Margin Height", mH);
-  settComp.setValue("Rows", rows);
-  settComp.setValue("Columns", columns);
-  settComp.setValue("Black background", invertBgColor);
-}
-
 function updateTextSettings() {
   settText.setValue("Display written text", showMyText);
-  settText.setValue("White text", invertTextColor);
   settText.setValue("Size", myTextSize);
   settText.setValue("Line spacing", myTextLeading);
   settText.setValue("Character spacing", myTextKerning);
@@ -453,6 +440,9 @@ function updateCheckboxState() {
   settImg.setValue("Display images", hideImages);
   settImg.setValue("Animate shapes", rImageAnimateEnabled);
   settText.setValue("Animate shapes", hideTxt);
+  settComp.setValue("Show Rows", showRows);
+  settComp.setValue("Show Columns", showColumns);
+  settComp.setValue("Show Layout Grid", showLayoutGrid);
 }
 
 function updateScaleSliders() {
