@@ -9,13 +9,6 @@ function loaded() {
 function setup() {
   boxEmpty = loadImage("box-empty.webp", loaded);
   boxChk = loadImage("box-chckd.webp", loaded);
-  scrPNG = loadImage("screens/scrPNG.webp", loaded);
-  scrSVG = loadImage("screens/scrSVG.webp", loaded);
-  scrError = loadImage("screens/scrError.webp", loaded);
-
-  for (let i = 1; i <= 6; i++) {
-    scrIntro[i] = loadImage("screens/scrIntro" + i + ".webp", loaded);
-  }
 
   for (let i = 0; i < fontPaths.length; i++) {
     setFont[i] = loadFont(fontPaths[i], loaded);
@@ -23,10 +16,10 @@ function setup() {
 
   calculateDimensions();
 
-  mainC = createCanvas(proportionalWidth, adjustedHeight);
-  poster = createGraphics(proportionalWidth, adjustedHeight);
-  brushCanvas = createGraphics(proportionalWidth, adjustedHeight);
-  svgCanvas = createGraphics(proportionalWidth, adjustedHeight, SVG);
+  mainC = createCanvas(adjustedCanvasWidth, adjustedCanvasHeight);
+  poster = createGraphics(adjustedCanvasWidth, adjustedCanvasHeight);
+  brushCanvas = createGraphics(adjustedCanvasWidth, adjustedCanvasHeight);
+  svgCanvas = createGraphics(adjustedCanvasWidth, adjustedCanvasHeight, SVG);
 
   if (isMobileDevice()) {
     displayWarning();
@@ -36,35 +29,32 @@ function setup() {
     brushCanvas.clear();
 
     mainC.drop(gotFile);
-    //setTimeout(showSurveyAlert, 30000);
 
     //////////////////////////////////////////// UI settings ////////////////////////////////////////////
 
-    settTips = QuickSettings.create(20, 100, "Tips");
-    settComp = QuickSettings.create(20, 140, "General");
-    settAssets = QuickSettings.create(240, 140, "Assets");
-    settText = QuickSettings.create(20, 180, "Text");
-    settImg = QuickSettings.create(20, 260, "Image");
-    settPattern = QuickSettings.create(20, 220, "Type Pattern");
-    settDraw = QuickSettings.create(20, 300, "Draw");
-    settCredits = QuickSettings.create(20, 340, "About");
+    settComp = QuickSettings.create(20, 100, "Canvas");
+    settText = QuickSettings.create(20, 140, "Text");
+    settPattern = QuickSettings.create(20, 180, "Type Pattern");
+    settImg = QuickSettings.create(20, 220, "Image");
+    settDraw = QuickSettings.create(20, 260, "Draw");
+    settAbout = QuickSettings.create(20, 300, "About");
+    settAssets = QuickSettings.create(20, 340, "Assets");
 
-    settTips.hide();
-    settAssets.hide();
     settComp.hide();
     settText.hide();
-    settImg.hide();
     settPattern.hide();
+    settImg.hide();
     settDraw.hide();
-    settCredits.hide();
+    settAbout.hide();
+    settAssets.hide();
 
     settComp.collapse();
     settText.collapse();
-    settImg.collapse();
     settPattern.collapse();
+    settImg.collapse();
     settDraw.collapse();
-    settTips.collapse();
-    settCredits.collapse();
+    settAbout.collapse();
+    settAbout.setHeight(230);
     settText.setHeight(420);
     settImg.setHeight(420);
 
@@ -108,40 +98,84 @@ function setup() {
       const variableData = exportVariables();
       saveStrings(variableData.split("\n"), "my-poster_settings.txt");
     });
-    settComp.addButton("Generate Poster", randomAll);
-
     settComp.addHTML(
       "Background Color",
       "<div><input type='color' id='bgPicker' name='head' value='#ffffff'/></div>"
     );
-    settComp.addButton("Random Grid", generateGrid);
-    settComp.addBoolean("Show Grid", true, function (value) {
-      showGridEnabled = value;
-    });
-    settComp.addRange("Gutter", 0, 50, gridGutter, 1, function (value) {
-      gridGutter = value;
-      updateTxtPositions();
-      updateMyTextPositions();
-    });
-    settComp.addRange("Margin Width", 0.7, 1, mH, 0.01, function (value) {
+    settComp.addButton("Generate Poster", randomAll);
+    settComp.addButton("Generate Layout", generateGrid);
+    settComp.addRange("Margin Width", 0.7, 1, mW, 0.01, function (value) {
       mW = value;
-      updateTxtPositions();
-      updateMyTextPositions();
+      txtFiles.forEach((txt) => {
+        if (txt) {
+          updateTextPosition(txt);
+        }
+      });
+      updateTextPosition(myTextObj);
+      displayImages.forEach((img) => {
+        if (img) {
+          updateImagePosition(img);
+        }
+      });
     });
-    settComp.addRange("Margin Height", 0.7, 1, mW, 0.01, function (value) {
+    settComp.addRange("Margin Height", 0.7, 1, mH, 0.01, function (value) {
       mH = value;
-      updateTxtPositions();
-      updateMyTextPositions();
+      txtFiles.forEach((txt) => {
+        if (txt) {
+          updateTextPosition(txt);
+        }
+      });
+      updateTextPosition(myTextObj);
+      displayImages.forEach((img) => {
+        if (img) {
+          updateImagePosition(img);
+        }
+      });
     });
-    settComp.addRange("Rows", 16, 72, rows, 1, function (value) {
+    settComp.addRange("Gutter", 0, 50, gridGutter, 0.1, function (value) {
+      gridGutter = value;
+    });
+    settComp.addBoolean("Show Baseline Grid", true, function (value) {
+      showBaselineGrid = value;
+    });
+    settComp.addBoolean("Show Layout Grid", showLayoutGrid, function (value) {
+      showLayoutGrid = value;
+    });
+    settComp.addBoolean("Show Rows", showRows, function (value) {
+      if (value) {
+        showRows = true;
+        showColumns = false;
+        showLayoutGrid = false;
+        settComp.setValue("Show Columns", false);
+        settComp.setValue("Show Layout Grid", false);
+      } else {
+        showRows = false;
+        if (!showColumns) {
+          showLayoutGrid = true;
+          settComp.setValue("Show Layout Grid", true);
+        }
+      }
+    });
+    settComp.addBoolean("Show Columns", showColumns, function (value) {
+      if (value) {
+        showColumns = true;
+        showRows = false;
+        showLayoutGrid = false;
+        settComp.setValue("Show Rows", false);
+        settComp.setValue("Show Layout Grid", false);
+      } else {
+        showColumns = false;
+        if (!showRows) {
+          showLayoutGrid = true;
+          settComp.setValue("Show Layout Grid", true);
+        }
+      }
+    });
+    settComp.addRange("Rows", 2, 10, rows, 1, function (value) {
       rows = value;
-      updateTxtPositions();
-      updateMyTextPositions();
     });
     settComp.addRange("Columns", 2, 12, columns, 1, function (value) {
       columns = value;
-      updateTxtPositions();
-      updateMyTextPositions();
     });
 
     /////////////////////////////////////////// UI PATTERN ///////////////////////////////////////////
@@ -190,7 +224,7 @@ function setup() {
       patternOffY = value;
     });
     settPattern.addButton("Randomize font", generatePatternFont);
-    settPattern.addButton("Randomize pattern", generatePattern); 
+    settPattern.addButton("Randomize pattern", generatePattern);
     settPattern.addRange("Position X", 0, width, 20, 1, function (value) {
       patternPosX = value;
     });
@@ -246,7 +280,7 @@ function setup() {
       myText = value;
       myTextMaxWidth = calculateMyTextMaxWidth(myText);
     });
-    settText.addButton("Randomize position", randomizeMyTextPositions);
+    settText.addButton("Randomize position", generateMyTextPositions);
     settText.addButton("Randomize font", generateMyTextFont);
     settText.addButton("Randomize everything", randomizeMyText);
     settText.addRange("Size", 20, 1000, myTextSize, 1, function (value) {
@@ -257,7 +291,7 @@ function setup() {
       0,
       1000,
       myTextLeading,
-      1,
+      0.1,
       function (value) {
         myTextLeading = value;
       }
@@ -281,7 +315,7 @@ function setup() {
       ".txt Color",
       "<div><input type='color' id='txPicker' name='head' value='#000000'/></div>"
     );
-    settText.addButton("Randomize positions (.txt)", randomizeTxtPositions);
+    settText.addButton("Randomize positions (.txt)", generateTxtPositions);
     settText.addButton("Randomize fonts (.txt)", generateTxtFont);
     settText.addButton("Chaos", randomizeTxt);
     settText.addBoolean("Hide .txt", false, function (value) {
@@ -305,7 +339,7 @@ function setup() {
       10,
       1000,
       txtLead,
-      1,
+      0.1,
       function (value) {
         if (
           txtFiles.length > 0 &&
@@ -461,24 +495,23 @@ function setup() {
     );
     settDraw.addButton("Delete all strokes", deleteMarker);
 
-    //////////////////////////////////////////// UI TIPS ////////////////////////////////////////////
-    settTips.addHTML(
+    //////////////////////////////////////////// UI ABOUT ////////////////////////////////////////////
+    settAbout.addHTML(
+      "Credits",
+      "Developed by Francisco Gutiérrez Hardt (<a href='https://www.instagram.com/paco.hardt/'  target='_blank' >@paco.hardt</a>) as part of his bachelors degree Kommunikationsdesign at the University of Applied Sciences in Mannheim, Germany."
+    );
+
+    settAbout.addHTML(
       "Everything everywhere",
       "+ Don't be scared of playing with the randomize buttons! Use them as a starting point or if you feel stuck.<br><br>+ Just remember, there is no 'un-do' function, so depending on what you are randomizing, chances are you will never get to the same result again!"
     );
-    settTips.addHTML(
+    settAbout.addHTML(
       "Image transformation",
-      "+ The transformed image looks best if you use portraits or motifs with clear shapes/minmal details.<br><br>+ Try inverting the colors if there is not enough contrast.<br><br>+ If you place the same image beneath the transformed image you will retain the general details!"
+      "+ The transformed image looks best if you use portraits or motifs with clear shapes/minmal details.<br><br>+ Try inverting the colors if there is not enough contrast.<br><br>+ If you place the same image beneath the transformed image you will retain the Canvas details!"
     );
-    settTips.addHTML(
+    settAbout.addHTML(
       "Text and .txt assets",
       "+ Use the text box to write a small paragraph or powerful headline.<br><br>+ If you plan on using larger pieces of text, upload them as a .txt file instead!"
-    );
-
-    //////////////////////////////////////////// UI ABOUT ////////////////////////////////////////////
-    settCredits.addHTML(
-      "About",
-      "Developed by Francisco Gutiérrez Hardt (<a href='https://www.instagram.com/paco.hardt/'  target='_blank' >@paco.hardt</a>) as part of his bachelors degree Kommunikationsdesign at the University of Applied Sciences in Mannheim, Germany."
     );
 
     settDraw.hideTitle("About");
@@ -488,8 +521,8 @@ function setup() {
 
     ////////////////////////////////////////// GENERATORS ////////////////////////////////////////
     generateImgPositions();
-    randomizeMyTextPositions();
-    randomizeTxtPositions();
+    generateMyTextPositions();
+    generateTxtPositions();
     generateTxtFont();
     loadRandomImage();
     loadHipsterText();
@@ -538,8 +571,6 @@ function draw() {
     drawMyText(poster);
     drawGrid(poster);
     displayIntro(poster);
-    displaySharePNG(poster);
-    displayShareSVG(poster);
     imageWarning(poster);
 
     if (errorMsg != "") {
@@ -555,6 +586,8 @@ function draw() {
 
     image(poster, 0, 0);
     image(brushCanvas, 0, 0);
+
+
     if (mouseIsPressed && brushCanvasEnabled) {
       let brushPicker = document.getElementById("brPicker");
       if (brushPicker != null) {
@@ -564,28 +597,31 @@ function draw() {
       brushCanvas.strokeWeight(markerWeight);
       brushCanvas.line(pmouseX, pmouseY, mouseX, mouseY);
     }
-    
-    if (radialPatternEnabled){
-        settPattern.showControl("Shape");
-        }
-    if (verticalPatternEnabled){
-        settPattern.showControl("Position X");
+
+    if (radialPatternEnabled) {
+      settPattern.showControl("Shape");
+      settPattern.hideControl("Position X");
+      settPattern.hideControl("Position Y");
+      settPattern.hideControl("Offset X");
+      settPattern.hideControl("Offset Y");
+    }
+    if (verticalPatternEnabled) {
+      settPattern.showControl("Position X");
       settPattern.showControl("Position Y");
-      settPattern.showControl("Offset X")
+      settPattern.showControl("Offset X");
       settPattern.showControl("Offset Y");
       settPattern.hideControl("Shape");
-        }
+    }
 
     if (currentIntro >= 4 && !panelsVisible) {
       panelsVisible = true;
-      settTips.show();
       settComp.show();
       settAssets.show();
       settText.show();
       settImg.show();
       settPattern.show();
       settDraw.show();
-      settCredits.show();
+      settAbout.show();
 
       let base64BOX = boxEmpty.canvas.toDataURL();
       let base64CHK = boxChk.canvas.toDataURL();
@@ -602,14 +638,13 @@ function draw() {
       document.head.appendChild(style);
     } else if (currentIntro < 4 && panelsVisible) {
       panelsVisible = false;
-      settTips.hide();
       settAssets.hide();
       settComp.hide();
       settText.hide();
       settImg.hide();
       settPattern.hide();
       settDraw.hide();
-      settCredits.hide();
+      settAbout.hide();
     }
   }
 
