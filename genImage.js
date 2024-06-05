@@ -15,6 +15,7 @@ function placeImage(canvas) {
       if (imgObj === imgDragged) {
         imgDragged.x = mouseX - imgOffsetX;
         imgDragged.y = mouseY - imgOffsetY;
+        storeRelativePosition(displayImages[i]);
       }
 
       canvas.scale(imgObj.scale);
@@ -42,7 +43,6 @@ function placeImage(canvas) {
   if (randomImg) {
     canvas.image(randomImg, randomImageX, randomImageY);
   }
-  
 }
 
 function randomizePImg() {
@@ -60,15 +60,30 @@ function randomizePImg() {
 }
 
 function generateImgPositions() {
+  calculateDimensions();
+  currentPosterHeight = adjustedCanvasHeight * mH;
+  currentPosterWidth = adjustedCanvasWidth * mW;
+  fullMarginHeight = adjustedCanvasHeight - currentPosterHeight;
+  fullMarginWidth = adjustedCanvasWidth - currentPosterWidth;
+  marginHeight = fullMarginHeight / 2;
+  marginWidth = fullMarginWidth / 2;
+
   for (let i = 0; i < displayImages.length; i++) {
     if (displayImages[i]) {
+      let baselineSpacing = (currentPosterHeight - gridGutter) / baselines;
+      let randomBaseline = floor(random(baselines + 1));
+      let cellWidth = currentPosterWidth / columns;
+      let randomColumn = floor(random(columns));
       displayImages[i].x =
-        floor(random(1, columns + 1)) * cellWidth + currentMarginW;
+        marginWidth + randomColumn * cellWidth + gridGutter / 2;
       displayImages[i].y =
-        floor(random(1, rows + 1)) * cellHeight + currentMarginH;
+        marginHeight + randomBaseline * baselineSpacing + gridGutter / 2;
+      
+      storeRelativePosition(displayImages[i]);
     }
   }
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////// RASTER image ///////////////////////////////////////
@@ -169,7 +184,6 @@ function randomizeRImg() {
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 function loadRandomImage() {
-
   fetch("https://picsum.photos/720/720")
     .then((response) => {
       if (!response.ok) {
@@ -182,13 +196,23 @@ function loadRandomImage() {
     .then((blob) => {
       imageURL = URL.createObjectURL(blob);
       const randomImg = createImg(imageURL, "Random Image");
-
       randomImg.addClass("img_ui");
       randomImg.id(`storedImg${imageCounter}`);
-      const randomImageX =
-        floor(random(1, columns + 1)) * cellWidth + currentMarginW;
-      const randomImageY =
-        floor(random(1, rows + 1)) * cellHeight + currentMarginH;
+
+      currentPosterHeight = adjustedCanvasHeight * mH;
+      currentPosterWidth = adjustedCanvasWidth * mW;
+      fullMarginHeight = adjustedCanvasHeight - currentPosterHeight;
+      fullMarginWidth = adjustedCanvasWidth - currentPosterWidth;
+      marginHeight = fullMarginHeight / 2;
+      marginWidth = fullMarginWidth / 2;
+
+      let baselineSpacing = (currentPosterHeight - gridGutter) / baselines;
+      let randomBaseline = floor(random(baselines + 1));
+      let cellWidth = currentPosterWidth / columns;
+      let randomColumn = floor(random(columns));
+      randomImageX = marginWidth + 1 * cellWidth + gridGutter / 2;
+      randomImageY = marginHeight + randomBaseline * baselineSpacing + gridGutter / 2;
+
       randomImg.hide();
 
       allImagesHTML += `<img id='storedImg${imageCounter}' class='img_ui' src='${imageURL}' style='width:15%; padding:2px;'></img>`;
@@ -215,7 +239,7 @@ function loadRandomImage() {
       errorMsg +=
         "Sorry, there was a problem fetching the image!\nPlease restart";
     });
-  
+
   currentImage++;
   imageCounter++;
 }
@@ -256,6 +280,16 @@ function reloadRandomImage() {
 ///////////////////////////////////////// CONTROLS /////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+function storeRelativePositionImg(img) {
+  img.relativeX = (img.x - marginWidth) / currentPosterWidth;
+  img.relativeY = (img.y - marginHeight) / currentPosterHeight;
+}
+
+function updateImagePosition(img) {
+  img.x = marginWidth + img.relativeX * currentPosterWidth;
+  img.y = marginHeight + img.relativeY * currentPosterHeight;
+}
+
 function nextImage() {
   currentImage++;
   highlightSelectedImage(currentImage);
@@ -277,7 +311,6 @@ function nextImage() {
   updateScaleSliders();
 }
 
-
 function deleteImage() {
   if (displayImages.length > 0) {
     const currentIndex = currentImage;
@@ -286,7 +319,7 @@ function deleteImage() {
     randomImages.splice(currentIndex, 1);
     rasterizedImages.splice(currentIndex, 1);
     deleteSelectedImage(currentIndex);
-    
+
     if (currentIndex >= displayImages.length) {
       currentImage = displayImages.length - 1;
       imageCounter = currentImage;
@@ -316,7 +349,7 @@ function deleteImage() {
 
 function deleteSelectedImage(index) {
   const deletedImage = document.getElementById(`storedImg${index}`);
-  
+
   if (deletedImage) {
     deletedImage.remove();
   }
@@ -327,7 +360,6 @@ function deleteSelectedImage(index) {
       updatedImagesHTML += `<img id='storedImg${i}' class='img_ui' src='${displayImages[i].imageURL}' style='width:15%; padding:2px;'></img>`;
     }
   }
-  
 
   imageCounter--;
   allImagesHTML = updatedImagesHTML;
@@ -351,8 +383,6 @@ function highlightSelectedImage(index) {
   }
 }
 
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////// OTHER ///////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -366,10 +396,24 @@ function imageWarning(canvas) {
       displayImages.length === 0) ||
     (hideImages && displayImages.length === 0)
   ) {
+    let tPosY = height / 8;
+    let tSize = height / 12;
+    let pSize = height / 35;
+    let paragraph;
+    let title = "Please upload an image :)";
+    let info = "click anywhere to close ";
     canvas.push();
-    canvas.translate(0, 0);
-    canvas.imageMode(CENTER);
-    canvas.image(scrError, 0.5 * width, 0.5 * height);
+    canvas.translate(50, tPosY);
+    canvas.textFont(setFont[2]);
+    canvas.background(255, 0, 0);
+    canvas.noStroke();
+    canvas.fill(255);
+    canvas.textSize(tSize);
+    canvas.textLeading(tSize * 1.3);
+    canvas.text(title, 0, 0, width * 0.9);
+    canvas.textSize(pSize);
+    canvas.textLeading(pSize * 1.3);
+    canvas.text(info, 0, height * 0.85, width * 0.8);
     canvas.pop();
 
     if (mouseIsPressed) {
@@ -378,7 +422,7 @@ function imageWarning(canvas) {
       rImgSquareEnabled = false;
       rImgCircleEnabled = false;
       rImageAnimateEnabled = false;
-      //updateCheckboxState();
+      settImg.setValue("Transform to...", 0);
     }
   }
 }
